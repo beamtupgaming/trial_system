@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trial UI</title>
+</head>
+<body>
+    <div id="trialContainer" style="display: none;">
+        <h1>Trial</h1>
+        <p>Defendant: <span id="defendantName"></span></p>
+        <p>Accused: <span id="accusedName"></span></p>
+        <div>
+            <label for="verdict">Verdict:</label>
+            <select id="verdict">
+                <option value="guilty">Guilty</option>
+                <option value="not_guilty">Not Guilty</option>
+            </select>
+            <button id="submitVerdictButton">Submit Verdict</button>
+        </div>
+        <button id="closeButton">Close</button>
+    </div>
+
+    <script>
+        // JavaScript code for interacting with the trial UI
+        document.addEventListener('DOMContentLoaded', () => {
+            const trialContainer = document.getElementById('trialContainer');
+            const defendantName = document.getElementById('defendantName');
+            const accusedName = document.getElementById('accusedName');
+            const verdictSelect = document.getElementById('verdict');
+            const submitVerdictButton = document.getElementById('submitVerdictButton');
+            const closeButton = document.getElementById('closeButton');
+
+            // Open trial UI
+            window.addEventListener('message', (event) => {
+                const data = event.data;
+                if (data.type === 'startTrial') {
+                    const trial = data.trial;
+                    defendantName.textContent = trial.defense;
+                    accusedName.textContent = trial.accused;
+                    trialContainer.style.display = 'block';
+                }
+            });
+
+            // Submit verdict
+            submitVerdictButton.addEventListener('click', () => {
+                const verdict = verdictSelect.value;
+                if (verdict) {
+                    SubmitVerdict(verdict);
+                }
+            });
+
+            // Close trial UI
+            closeButton.addEventListener('click', () => {
+                CloseTrialUI();
+            });
+
+            // Send data to Lua
+            function SubmitVerdict(verdict) {
+                if ('citizenfx' in window) {
+                    // For FiveM NUI communication
+                    window.citizenfx.invokeNative('CB_SEND_NUI_MESSAGE', JSON.stringify({ type: 'submitVerdict', verdict }));
+                }
+            }
+
+            // Close the trial UI
+            function CloseTrialUI() {
+                if ('citizenfx' in window) {
+                    // For FiveM NUI communication
+                    window.citizenfx.invokeNative('CB_SEND_NUI_MESSAGE', JSON.stringify({ type: 'closeUI' }));
+                }
+            }
+        });
+    </script>
+</body>
+</html>
